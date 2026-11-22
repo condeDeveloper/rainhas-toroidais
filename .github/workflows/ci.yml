@@ -1,0 +1,57 @@
+name: testes
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  testes:
+    runs-on: ${{ matrix.so }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        so: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: "testes"
+        run: dotnet test testes/RainhasToroidais.Testes/RainhasToroidais.Testes.csproj -c Release --nologo -v q --filter "Category!=Pesado"
+
+      - name: "n rainhas no toro de 1 a 17, pela busca e pelos juizes"
+        run: dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- tabela
+
+      - name: "o teorema de Polya: so existe solucao quando n e primo com 6"
+        run: dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- polya
+
+      - name: "quantas solucoes sao uma reta modular e quantas nao"
+        run: dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- lineares
+
+      - name: "quantas solucoes do tabuleiro comum sobrevivem ao toro"
+        run: dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- planas
+
+      - name: "uma solucao nao linear do 13 desenhada"
+        run: dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- desenho
+
+  pesado:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: "o 18, o 19 e o 17 sem o atalho da translacao, presos em teste"
+        run: dotnet test testes/RainhasToroidais.Testes/RainhasToroidais.Testes.csproj -c Release --nologo -v q --filter "Category=Pesado"
+
+      - name: "o 18 e o 19 impressos"
+        run: dotnet run --project ferramentas/Medidor/Medidor.csproj -c Release -- grandes
